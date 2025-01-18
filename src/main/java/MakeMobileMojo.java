@@ -1,14 +1,10 @@
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 @Mojo(name = "make-mobile", defaultPhase = LifecyclePhase.PACKAGE)
@@ -27,18 +23,18 @@ public class MakeMobileMojo extends AbstractMojo {
             }
 
             // Step 1: Initialize Capacitor app
-            Commons.executeCommand("npm init @capacitor/app -- " + Commons.MY_APP + " --name " + appName + " --app-id " + appId, mobileDir);
+            Commons.executeCommand("npm" + Commons.CMD + " init @capacitor/app -- " + Commons.MY_APP + " --name " + appName + " --app-id " + appId, mobileDir);
 
             File appDir = new File(mobileDir, Commons.MY_APP);
 
             // Step 2: Install dependencies
-            Commons.executeCommand("npm i @capacitor/core", mobileDir);
-            Commons.executeCommand("npm i -D @capacitor/cli", mobileDir);
-            Commons.executeCommand("npm i @capacitor/android @capacitor/ios", mobileDir);
+            Commons.executeCommand("npm" + Commons.CMD + " i @capacitor/core", mobileDir);
+            Commons.executeCommand("npm" + Commons.CMD + " i -D @capacitor/cli", mobileDir);
+            Commons.executeCommand("npm" + Commons.CMD + " i @capacitor/android @capacitor/ios", mobileDir);
 
             // Step 3: Add platforms
-            Commons.executeCommand("npx cap add android", appDir);
-            Commons.executeCommand("npx cap add ios", appDir);
+            Commons.executeCommand("npx" + Commons.CMD + " cap add android", appDir);
+            Commons.executeCommand("npx" + Commons.CMD + " cap add ios", appDir);
 
             // Step 4: Update capacitor.config.json
             Commons.sync(appDir, properties);

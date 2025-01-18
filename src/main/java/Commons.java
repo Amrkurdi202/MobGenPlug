@@ -15,13 +15,13 @@ import java.util.Properties;
 public class Commons {
     public static final String MY_APP = "my-app";
     public static final String MOBILE = "mobile";
+    public static final String CMD =System.getProperty("os.name").startsWith("Windows")?".cmd":"";
 
     public static void executeCommand(String command, File workingDir) throws IOException, MojoExecutionException {
         // Check if npm exists
-        if (!isCommandAvailable("npm")) {
+        if (!isCommandAvailable("npm"+ CMD)) {
             throw new MojoExecutionException("Error: 'npm' is not installed or not available in the system PATH. Please install Node.js and npm.");
         }
-
         CommandLine cmdLine = CommandLine.parse(command);
         DefaultExecutor executor = new DefaultExecutor();
         executor.setWorkingDirectory(workingDir);
@@ -97,7 +97,7 @@ public class Commons {
         Commons.copyDirectory(frontendSrc, mobileSrc);
 
         // Step 6: Sync Capacitor
-        Commons.executeCommand("npx cap sync", appDir);
+        Commons.executeCommand("npx"+CMD+" cap sync", appDir);
     }
 
 }
