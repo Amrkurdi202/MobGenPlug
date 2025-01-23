@@ -4,17 +4,16 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 public class Commons {
-    public static final String MY_APP = "my-app";
-    public static final String MOBILE = "mobile";
+    public static final String APPS = "apps";
+    public static final String NATIVES = "natives";
     public static final String CMD =System.getProperty("os.name").startsWith("Windows")?".cmd":"";
 
     public static void executeCommand(String command, File workingDir) throws IOException, MojoExecutionException {
@@ -82,7 +81,7 @@ public class Commons {
         return properties;
     }
 
-    public static void sync(File appDir, Properties properties) throws IOException, MojoExecutionException {
+    public static void syncMobile(File appDir, Properties properties) throws IOException, MojoExecutionException {
         String appUrl = properties.getProperty("quentity.app.url");
         File configFile = new File(appDir, "capacitor.config.json");
         if (configFile.exists()) {
@@ -98,6 +97,51 @@ public class Commons {
 
         // Step 6: Sync Capacitor
         Commons.executeCommand("npx"+CMD+" cap sync", appDir);
+    }
+    private static void editTSConfig(File appDir) throws IOException {
+        InputStream resourceAsStream = MakeAppMojo.class.getClassLoader().getResourceAsStream("tsconfig.json");
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+            }
+        }
+
+        File setupFile = new File(appDir, "electron/tsconfig.json");
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(setupFile, false))) {
+            writer.write(sb.toString());
+        }
+    }
+
+    private static void editSetupTS(Properties properties, File appDir) throws URISyntaxException, IOException {
+        String property = properties.getProperty("quentity.app.url");
+        String[] split = property.split("://");
+
+        InputStream resourceAsStream = MakeAppMojo.class.getClassLoader().getResourceAsStream("setup.ts");
+        File setupFile = new File(appDir, "electron/src/setup.ts");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+        String line;
+        StringBuilder sb = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            line = line.replace("$SCHEMA$", split[0]);
+            line = line.replace("$SERVER_URL$", split[1]);
+            sb.append(line);
+            sb.append(System.lineSeparator());
+        }
+        reader.close();
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(setupFile, false));
+        writer.write(sb.toString());
+        writer.close();
+    }
+
+    public static void syncApp(File appDir, Properties properties) throws IOException, URISyntaxException {
+        editSetupTS(properties, appDir);
+        editTSConfig(appDir);
     }
 
 }

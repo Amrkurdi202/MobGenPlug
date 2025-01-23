@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.quentity</groupId>
-    <artifactId>MobGenPlug</artifactId>
+    <artifactId>AppGenPlug</artifactId>
     <version>1.0</version>
     <packaging>maven-plugin</packaging>
 
@@ -63,7 +63,7 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven.plugin.plugin.version}</version>
                 <configuration>
-                    <goalPrefix>MobGenPlug</goalPrefix>
+                    <goalPrefix>AppGenPlug</goalPrefix>
                     <outputDirectory>${project.build.outputDirectory}/META-INF/maven</outputDirectory>
                 </configuration>
             </plugin>
@@ -74,6 +74,9 @@
                 <includes>
                     <include>plugin.xml</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
     </build>
