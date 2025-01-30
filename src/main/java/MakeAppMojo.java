@@ -80,7 +80,7 @@ public class MakeAppMojo extends AbstractMojo {
     private static void makeSymbolicLink(File appDir) {
 
         Path link = Paths.get(appDir.getAbsolutePath(), "node_modules");
-        Path target = Paths.get(appDir.getAbsolutePath(), "../node_modules");
+        Path target = Paths.get(appDir.getAbsolutePath(), "../../node_modules");
 
         try {
             Files.createSymbolicLink(link, target);
